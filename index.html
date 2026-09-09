@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICT 5m Signal Terminal</title>
+<style>
+  :root{
+    --bg:#10141c;
+    --panel:#161c27;
+    --line:#232b3a;
+    --text:#e7eaf0;
+    --muted:#8993a6;
+    --bull:#3fb68b;
+    --bear:#e0665a;
+    --amber:#e8b75d;
+    --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    padding:16px 14px 40px;
+  }
+  h1{
+    font-size:17px;
+    font-weight:600;
+    letter-spacing:0.2px;
+    margin:0 0 2px;
+  }
+  .sub{
+    color:var(--muted);
+    font-size:12.5px;
+    margin:0 0 16px;
+  }
+  .controls{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  button{
+    font-family:var(--sans);
+    font-size:13px;
+    font-weight:600;
+    padding:9px 14px;
+    border-radius:7px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--text);
+    cursor:pointer;
+  }
+  button.primary{
+    background:var(--bull);
+    border-color:var(--bull);
+    color:#0a1410;
+  }
+  button.stop{
+    background:var(--bear);
+    border-color:var(--bear);
+    color:#1a0a08;
+  }
+  button:disabled{opacity:0.45;cursor:default;}
+  .status-line{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:16px;
+    font-family:var(--mono);
+  }
+  .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--muted);
+    flex-shrink:0;
+  }
+  .dot.live{background:var(--bull); box-shadow:0 0 0 3px rgba(63,182,139,0.18);}
+  .dot.stopped{background:var(--bear);}
+
+  .ticker{
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    margin-bottom:22px;
+  }
+  .ticker-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:11px 13px;
+    border-bottom:1px solid var(--line);
+    gap:10px;
+  }
+  .ticker-row:last-child{border-bottom:none;}
+  .tr-left{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .tr-sym{font-weight:700;font-size:13.5px;}
+  .tr-bias{font-size:11.5px;color:var(--muted);}
+  .tr-bias.bull{color:var(--bull);}
+  .tr-bias.bear{color:var(--bear);}
+  .tr-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .tr-price{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums;}
+  .spark{display:block;}
+  .ticker-row{cursor:pointer;}
+  .chart-wrap{
+    display:none;
+    padding:10px 13px 13px;
+    border-bottom:1px solid var(--line);
+    background:#0d1119;
+  }
+  .chart-wrap.open{display:block;}
+  .chart-wrap canvas{width:100%;height:150px;display:block;border-radius:6px;}
+  .chart-legend{
+    display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:11px;color:var(--muted);
+  }
+  .chart-legend span{display:flex;align-items:center;gap:5px;}
+  .legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;}
+  .chart-empty{color:var(--muted);font-size:12px;text-align:center;padding:20px 0;}
+
+  .section-title{
+    font-size:12.5px;
+    color:var(--muted);
+    margin:0 0 10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+  }
+  .feed{
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .signal{
+    display:flex;
+    gap:11px;
+    padding:12px 13px;
+    border-bottom:1px solid var(--line);
+    align-items:stretch;
+  }
+  .signal:last-child{border-bottom:none;}
+  .bar{width:3px;border-radius:2px;flex-shrink:0;}
+  .bar.LONG{background:var(--bull);}
+  .bar.SHORT{background:var(--bear);}
+  .sig-body{flex:1;min-width:0;}
+  .sig-top{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;
+  }
+  .sig-dir{font-weight:700;font-size:13px;}
+  .sig-dir.LONG{color:var(--bull);}
+  .sig-dir.SHORT{color:var(--bear);}
+  .sig-time{font-family:var(--mono);font-size:11px;color:var(--muted);}
+  .sig-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:6px;
+    font-family:var(--mono);
+    font-size:12px;
+  }
+  .sig-grid div span{display:block;color:var(--muted);font-size:10px;margin-bottom:1px;}
+  .pill{
+    font-size:10.5px;
+    font-weight:700;
+    padding:2px 7px;
+    border-radius:20px;
+    align-self:flex-start;
+  }
+  .pill.OPEN{background:rgba(232,183,93,0.15);color:var(--amber);}
+  .pill.WIN{background:rgba(63,182,139,0.15);color:var(--bull);}
+  .pill.LOSS{background:rgba(224,102,90,0.15);color:var(--bear);}
+  .empty{
+    padding:26px 16px;
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.5;
+  }
+  .note{
+    margin-top:22px;
+    font-size:11.5px;
+    color:var(--muted);
+    line-height:1.5;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+</style>
+</head>
+<body>
+
+  <h1>ICT 5m Signal Terminal</h1>
+  <p class="sub">BTCUSDT · ETHUSDT · SOLUSDT — Liquidity Sweep + Break of Structure + Fair Value Gap</p>
+
+  <div class="controls">
+    <button id="toggleBtn" class="primary">Start</button>
+    <button id="notifBtn">Push aktivieren</button>
+  </div>
+  <div class="status-line">
+    <span class="dot" id="statusDot"></span>
+    <span id="statusText">Gestoppt</span>
+    <span id="lastCheck"></span>
+  </div>
+
+  <div class="ticker" id="ticker"></div>
+
+  <div class="section-title">
+    <span>Signale</span>
+    <span id="sigCount"></span>
+  </div>
+  <div class="feed" id="feed"></div>
+
+  <div class="note">
+    Vereinfachte, heuristische Umsetzung von ICT-Konzepten (Liquidity Sweep, Break of Structure/CHoCH, Fair Value Gap) auf dem 5-Minuten-Chart. Kursdaten von Binance (öffentliche API, ca. 30s Verzögerung). Läuft nur, solange diese Seite geöffnet ist — beim Schließen der App/des Tabs stoppt die Analyse. Keine Anlageberatung, keine Garantie für die Signale — immer selbst prüfen.
+  </div>
+
+<script>
+const SYMBOLS = ['BTCUSDT','ETHUSDT','SOLUSDT'];
+const POLL_MS = 30000;
+const BUFFER_PCT = 0.0015;
+
+let running = false;
+let pollTimer = null;
+let notifGranted = (typeof Notification !== 'undefined' && Notification.permission === 'granted');
+
+const state = {};
+SYMBOLS.forEach(s => state[s] = { candles: [], lastClosedTime: 0, bias: '–', price: null, error: null });
+
+let signals = [];
+
+function loadSignals(){
+  return window.storage.get('ict-signals-v1')
+    .then(r => { signals = JSON.parse(r.value); })
+    .catch(() => { signals = []; });
+}
+function saveSignals(){
+  window.storage.set('ict-signals-v1', JSON.stringify(signals)).catch(()=>{});
+}
+
+async function fetchKlines(symbol){
+  const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=5m&limit=150`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error('http ' + res.status);
+  const raw = await res.json();
+  const candles = raw.map(k => ({
+    openTime: k[0],
+    open: parseFloat(k[1]),
+    high: parseFloat(k[2]),
+    low: parseFloat(k[3]),
+    close: parseFloat(k[4]),
+    closeTime: k[6]
+  }));
+  candles.pop(); // drop the still-forming candle
+  return candles;
+}
+
+function findSwings(candles, n=2){
+  const highs=[], lows=[];
+  for(let i=n;i<candles.length-n;i++){
+    let isHigh = true, isLow = true;
+    for(let j=i-n;j<=i+n;j++){
+      if(j===i) continue;
+      if(candles[j].high > candles[i].high) isHigh = false;
+      if(candles[j].low < candles[i].low) isLow = false;
+    }
+    if(isHigh) highs.push({idx:i, price:candles[i].high, time:candles[i].openTime});
+    if(isLow) lows.push({idx:i, price:candles[i].low, time:candles[i].openTime});
+  }
+  return {highs, lows};
+}
+
+function biasFromSwings(highs, lows){
+  if(highs.length<2 || lows.length<2) return 'neutral';
+  const h1=highs[highs.length-2], h2=highs[highs.length-1];
+  const l1=lows[lows.length-2], l2=lows[lows.length-1];
+  if(h2.price>h1.price && l2.price>l1.price) return 'bullish';
+  if(h2.price<h1.price && l2.price<l1.price) return 'bearish';
+  return 'neutral';
+}
+
+function findFvgInRange(candles, from, to, direction){
+  for(let i=Math.max(from+1,2); i<=to; i++){
+    const a = candles[i-2], c = candles[i];
+    if(direction==='LONG' && a.high < c.low){
+      return { low:a.high, high:c.low, idx:i };
+    }
+    if(direction==='SHORT' && a.low > c.high){
+      return { low:c.high, high:a.low, idx:i };
+    }
+  }
+  return null;
+}
+
+function findLastOppositeCandle(candles, from, to, direction){
+  for(let k=to; k>=from; k--){
+    const c = candles[k];
+    if(direction==='LONG' && c.close < c.open) return c;
+    if(direction==='SHORT' && c.close > c.open) return c;
+  }
+  return null;
+}
+
+function findImpulseExtreme(candles, from, to, wantHigh){
+  let best = wantHigh ? -Infinity : Infinity;
+  for(let k=from; k<=to; k++){
+    const v = wantHigh ? candles[k].high : candles[k].low;
+    if(wantHigh ? v>best : v<best) best = v;
+  }
+  return best;
+}
+
+function findBullishEvent(candles, highs, lookStart){
+  const n = candles.length;
+  const {lows} = {lows: findSwings(candles,2).lows};
+  for(let li=lows.length-1; li>=1; li--){
+    const swingLow = lows[li];
+    if(swingLow.idx < lookStart) break;
+    for(let i=swingLow.idx+1; i<n; i++){
+      const c = candles[i];
+      if(c.low < swingLow.price && c.close > swingLow.price){
+        const refHigh = highs.filter(h=>h.idx>swingLow.idx-5 && h.idx<=i).pop() || highs[highs.length-1];
+        if(!refHigh) continue;
+        for(let j=i; j<n; j++){
+          if(candles[j].close > refHigh.price){
+            return { sweepIdx:i, bosIdx:j, sweepCandle:c };
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function findBearishEvent(candles, lows, lookStart){
+  const n = candles.length;
+  const {highs} = {highs: findSwings(candles,2).highs};
+  for(let hi=highs.length-1; hi>=1; hi--){
+    const swingHigh = highs[hi];
+    if(swingHigh.idx < lookStart) break;
+    for(let i=swingHigh.idx+1; i<n; i++){
+      const c = candles[i];
+      if(c.high > swingHigh.price && c.close < swingHigh.price){
+        const refLow = lows.filter(l=>l.idx>swingHigh.idx-5 && l.idx<=i).pop() || lows[lows.length-1];
+        if(!refLow) continue;
+        for(let j=i; j<n; j++){
+          if(candles[j].close < refLow.price){
+            return { sweepIdx:i, bosIdx:j, sweepCandle:c };
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function makeSetup(symbol, direction, type, slBasis, entry, opposingPrices, zone){
+  const sl = direction==='LONG' ? slBasis*(1-BUFFER_PCT) : slBasis*(1+BUFFER_PCT);
+  let tp;
+  if(direction==='LONG'){
+    const targets = opposingPrices.filter(p=>p>entry).sort((a,b)=>a-b);
+    tp = targets.length ? targets[0] : entry + 2*(entry-sl);
+  } else {
+    const targets = opposingPrices.filter(p=>p<entry).sort((a,b)=>b-a);
+    tp = targets.length ? targets[0] : entry - 2*(sl-entry);
+  }
+  const risk = direction==='LONG' ? (entry-sl) : (sl-entry);
+  if(risk<=0) return null;
+  const rr = direction==='LONG' ? (tp-entry)/risk : (entry-tp)/risk;
+  if(rr<=0 || !isFinite(rr)) return null;
+  return { symbol, direction, type, entry, sl, tp, rr, zone: zone || null };
+}
+
+function detectSetups(symbol, candles){
+  const results = [];
+  const {highs, lows} = findSwings(candles, 2);
+  if(highs.length<3 || lows.length<3) return results;
+  const n = candles.length;
+  const lookStart = Math.max(0, n-40);
+  const current = candles[n-1];
+
+  // ---- LONG event: sweep of a swing low + BOS above a swing high ----
+  const bull = findBullishEvent(candles, highs, lookStart);
+  if(bull){
+    const { sweepIdx, bosIdx, sweepCandle } = bull;
+    const sweepLow = sweepCandle.low;
+    if(current.close > sweepLow){
+      const opposing = highs.map(h=>h.price);
+      const fvg = findFvgInRange(candles, sweepIdx, bosIdx, 'LONG');
+      if(fvg && current.close>=fvg.low && current.close<=fvg.high){
+        const s = makeSetup(symbol,'LONG','FVG', sweepLow, current.close, opposing, {low:fvg.low, high:fvg.high});
+        if(s) results.push({...s, id:`${symbol}-LONG-FVG-${sweepCandle.openTime}`, entryTime: current.openTime});
+      }
+      const ob = findLastOppositeCandle(candles, sweepIdx, bosIdx, 'LONG');
+      if(ob && current.close>=ob.low && current.close<=ob.high){
+        const s = makeSetup(symbol,'LONG','OB', ob.low, current.close, opposing, {low:ob.low, high:ob.high});
+        if(s) results.push({...s, id:`${symbol}-LONG-OB-${sweepCandle.openTime}`, entryTime: current.openTime});
+      }
+      const impulseHigh = findImpulseExtreme(candles, sweepIdx, bosIdx, true);
+      const range = impulseHigh - sweepLow;
+      const oteHigh = impulseHigh - 0.618*range;
+      const oteLow = impulseHigh - 0.79*range;
+      if(range>0 && current.close>=oteLow && current.close<=oteHigh){
+        const s = makeSetup(symbol,'LONG','OTE', sweepLow, current.close, opposing, {low:oteLow, high:oteHigh});
+        if(s) results.push({...s, id:`${symbol}-LONG-OTE-${sweepCandle.openTime}`, entryTime: current.openTime});
+      }
+    }
+  }
+
+  // ---- SHORT event: sweep of a swing high + BOS below a swing low ----
+  const bear = findBearishEvent(candles, lows, lookStart);
+  if(bear){
+    const { sweepIdx, bosIdx, sweepCandle } = bear;
+    const sweepHigh = sweepCandle.high;
+    if(current.close < sweepHigh){
+      const opposing = lows.map(l=>l.price);
+      const fvg = findFvgInRange(candles, sweepIdx, bosIdx, 'SHORT');
+      if(fvg && current.close>=fvg.low && current.close<=fvg.high){
+        const s = makeSetup(symbol,'SHORT','FVG', sweepHigh, current.close, opposing, {low:fvg.low, high:fvg.high});
+        if(s) results.push({...s, id:`${symbol}-SHORT-FVG-${sweepCandle.openTime}`, entryTime: current.openTime});
+      }
+      const ob = findLastOppositeCandle(candles, sweepIdx, bosIdx, 'SHORT');
+      if(ob && current.close>=ob.low && current.close<=ob.high){
+        const s = makeSetup(symbol,'SHORT','OB', ob.high, current.close, opposing, {low:ob.low, high:ob.high});
+        if(s) results.push({...s, id:`${symbol}-SHORT-OB-${sweepCandle.openTime}`, entryTime: current.openTime});
+      }
+      const impulseLow = findImpulseExtreme(candles, sweepIdx, bosIdx, false);
+      const range = sweepHigh - impulseLow;
+      const oteLow = impulseLow + 0.618*range;
+      const oteHigh = impulseLow + 0.79*range;
+      if(range>0 && current.close>=oteLow && current.close<=oteHigh){
+        const s = makeSetup(symbol,'SHORT','OTE', sweepHigh, current.close, opposing, {low:oteLow, high:oteHigh});
+        if(s) results.push({...s, id:`${symbol}-SHORT-OTE-${sweepCandle.openTime}`, entryTime: current.openTime});
+      }
+    }
+  }
+
+  return results;
+}
+
+function evaluateOutcome(sig, candles){
+  const relevant = candles.filter(c => c.openTime > sig.entryTime);
+  for(const c of relevant){
+    if(sig.direction==='LONG'){
+      if(c.low <= sig.sl) return 'LOSS';
+      if(c.high >= sig.tp) return 'WIN';
+    } else {
+      if(c.high >= sig.sl) return 'LOSS';
+      if(c.low <= sig.tp) return 'WIN';
+    }
+  }
+  return 'OPEN';
+}
+
+function notify(sig){
+  if(!notifGranted || typeof Notification === 'undefined') return;
+  try{
+    const n = new Notification(`${sig.direction} ${sig.symbol} · ${sig.type}`, {
+      body: `Entry ${fmt(sig.entry)} · SL ${fmt(sig.sl)} · TP ${fmt(sig.tp)} · RR ${sig.rr.toFixed(2)}`
+    });
+    n.onclick = () => {
+      window.focus();
+      expanded[sig.symbol] = true;
+      render();
+      const el = document.getElementById('chart-' + sig.symbol);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+    };
+  }catch(e){}
+}
+
+function fmt(n){
+  if(n >= 1000) return n.toLocaleString('de-DE', {maximumFractionDigits:2});
+  return n.toLocaleString('de-DE', {maximumFractionDigits:4});
+}
+
+async function tick(){
+  for(const symbol of SYMBOLS){
+    try{
+      const candles = await fetchKlines(symbol);
+      if(candles.length < 40) continue;
+      const s = state[symbol];
+      s.candles = candles;
+      s.price = candles[candles.length-1].close;
+      s.error = null;
+      const {highs, lows} = findSwings(candles, 2);
+      s.bias = biasFromSwings(highs, lows);
+
+      const lastClosed = candles[candles.length-1];
+      if(lastClosed.closeTime !== s.lastClosedTime){
+        s.lastClosedTime = lastClosed.closeTime;
+        const setups = detectSetups(symbol, candles);
+        setups.forEach(setup=>{
+          if(!signals.find(x=>x.id===setup.id)){
+            const newSig = {...setup, status:'OPEN', createdAt: Date.now()};
+            signals.unshift(newSig);
+            notify(newSig);
+          }
+        });
+        if(setups.length) saveSignals();
+      }
+      // update outcomes for open signals of this symbol
+      let changed = false;
+      signals.forEach(sig=>{
+        if(sig.symbol===symbol && sig.status==='OPEN'){
+          const outcome = evaluateOutcome(sig, candles);
+          if(outcome !== 'OPEN'){ sig.status = outcome; changed = true; }
+        }
+      });
+      if(changed) saveSignals();
+    }catch(e){
+      state[symbol].error = 'Verbindung fehlgeschlagen';
+    }
+  }
+  render();
+}
+
+const expanded = {};
+
+function latestSignalFor(sym){
+  const open = signals.find(s=>s.symbol===sym && s.status==='OPEN');
+  if(open) return open;
+  return signals.find(s=>s.symbol===sym) || null;
+}
+
+function render(){
+  const ticker = document.getElementById('ticker');
+  ticker.innerHTML = SYMBOLS.map(sym=>{
+    const s = state[sym];
+    const biasClass = s.bias==='bullish' ? 'bull' : s.bias==='bearish' ? 'bear' : '';
+    const biasLabel = s.bias==='bullish' ? 'bullische Struktur' : s.bias==='bearish' ? 'bärische Struktur' : (s.error || 'neutral / Range');
+    const price = s.price ? fmt(s.price) : '—';
+    const closes = s.candles.slice(-30).map(c=>c.close);
+    const spark = sparkSvg(closes, biasClass);
+    const isOpen = !!expanded[sym];
+    const sig = latestSignalFor(sym);
+    const legend = sig ? `<div class="chart-legend">
+        <span><i class="legend-dot" style="background:var(--amber)"></i>Entry ${fmt(sig.entry)}</span>
+        <span><i class="legend-dot" style="background:var(--bear)"></i>SL ${fmt(sig.sl)}</span>
+        <span><i class="legend-dot" style="background:var(--bull)"></i>TP ${fmt(sig.tp)}</span>
+        <span>${sig.direction} · ${sig.type} · ${sig.status}</span>
+      </div>` : '';
+    return `<div>
+      <div class="ticker-row" onclick="toggleChart('${sym}')">
+        <div class="tr-left">
+          <span class="tr-sym">${sym}</span>
+          <span class="tr-bias ${biasClass}">${biasLabel}</span>
+        </div>
+        <div class="tr-right">
+          ${spark}
+          <span class="tr-price">${price}</span>
+        </div>
+      </div>
+      <div class="chart-wrap ${isOpen ? 'open' : ''}" id="chart-${sym}">
+        ${s.candles.length ? `<canvas id="canvas-${sym}" width="600" height="150"></canvas>${legend}` : `<div class="chart-empty">Lade Kursdaten…</div>`}
+      </div>
+    </div>`;
+  }).join('');
+
+  SYMBOLS.forEach(sym=>{
+    if(expanded[sym] && state[sym].candles.length){
+      const canvas = document.getElementById('canvas-'+sym);
+      if(canvas) drawChart(canvas, state[sym].candles.slice(-60), latestSignalFor(sym));
+    }
+  });
+
+  const feed = document.getElementById('feed');
+  document.getElementById('sigCount').textContent = signals.length ? `${signals.length} gesamt` : '';
+  if(!signals.length){
+    feed.innerHTML = `<div class="empty">Noch keine Setups. Wartet auf Liquidity Sweep + Struktur­wechsel auf dem 5m-Chart.</div>`;
+    return;
+  }
+  feed.innerHTML = signals.slice(0,40).map(sig=>{
+    const d = new Date(sig.entryTime);
+    const time = d.toLocaleString('de-DE', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `<div class="signal">
+      <div class="bar ${sig.direction}"></div>
+      <div class="sig-body">
+        <div class="sig-top">
+          <span class="sig-dir ${sig.direction}">${sig.direction} · ${sig.symbol} · ${sig.type}</span>
+          <span class="pill ${sig.status}">${sig.status}</span>
+        </div>
+        <div class="sig-grid">
+          <div><span>Entry</span>${fmt(sig.entry)}</div>
+          <div><span>SL</span>${fmt(sig.sl)}</div>
+          <div><span>TP</span>${fmt(sig.tp)}</div>
+          <div><span>RR</span>${sig.rr.toFixed(2)}</div>
+        </div>
+        <div class="sig-time">${time}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleChart(sym){
+  expanded[sym] = !expanded[sym];
+  render();
+}
+
+function drawChart(canvas, candles, signal){
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+  if(!candles.length) return;
+
+  let min = Math.min(...candles.map(c=>c.low));
+  let max = Math.max(...candles.map(c=>c.high));
+  if(signal){
+    min = Math.min(min, signal.sl, signal.tp, signal.entry);
+    max = Math.max(max, signal.sl, signal.tp, signal.entry);
+  }
+  const pad = (max-min)*0.08 || max*0.001;
+  min -= pad; max += pad;
+  const range = max-min || 1;
+  const priceToY = p => h - ((p-min)/range)*h;
+
+  const n = candles.length;
+  const cw = w/n;
+  const bodyW = Math.max(1, cw*0.6);
+
+  // zone shading
+  if(signal && signal.zone){
+    const yTop = priceToY(signal.zone.high);
+    const yBot = priceToY(signal.zone.low);
+    ctx.fillStyle = signal.direction==='LONG' ? 'rgba(63,182,139,0.12)' : 'rgba(224,102,90,0.12)';
+    ctx.fillRect(0, yTop, w, Math.max(1, yBot-yTop));
+  }
+
+  // candles
+  candles.forEach((c,i)=>{
+    const x = i*cw + cw/2;
+    const bull = c.close >= c.open;
+    ctx.strokeStyle = ctx.fillStyle = bull ? '#3fb68b' : '#e0665a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, priceToY(c.high));
+    ctx.lineTo(x, priceToY(c.low));
+    ctx.stroke();
+    const yO = priceToY(c.open), yC = priceToY(c.close);
+    ctx.fillRect(x-bodyW/2, Math.min(yO,yC), bodyW, Math.max(1, Math.abs(yC-yO)));
+  });
+
+  // entry / sl / tp lines
+  if(signal){
+    const lines = [
+      {price: signal.entry, color:'#e8b75d'},
+      {price: signal.sl, color:'#e0665a'},
+      {price: signal.tp, color:'#3fb68b'}
+    ];
+    lines.forEach(l=>{
+      const y = priceToY(l.price);
+      ctx.strokeStyle = l.color;
+      ctx.setLineDash([4,3]);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0,y); ctx.lineTo(w,y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+  }
+}
+
+function sparkSvg(values, biasClass){
+  if(values.length < 2) return `<svg class="spark" width="52" height="20"></svg>`;
+  const min = Math.min(...values), max = Math.max(...values);
+  const range = (max-min) || 1;
+  const w = 52, h = 20;
+  const pts = values.map((v,i)=>{
+    const x = (i/(values.length-1))*w;
+    const y = h - ((v-min)/range)*h;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const color = biasClass==='bull' ? 'var(--bull)' : biasClass==='bear' ? 'var(--bear)' : 'var(--muted)';
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function setStatus(){
+  const dot = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+  dot.className = 'dot ' + (running ? 'live' : 'stopped');
+  text.textContent = running ? 'Live — prüft alle 30s' : 'Gestoppt';
+}
+
+function start(){
+  running = true;
+  setStatus();
+  document.getElementById('toggleBtn').textContent = 'Stop';
+  document.getElementById('toggleBtn').classList.remove('primary');
+  document.getElementById('toggleBtn').classList.add('stop');
+  tick();
+  pollTimer = setInterval(()=>{
+    tick();
+    document.getElementById('lastCheck').textContent = '· ' + new Date().toLocaleTimeString('de-DE');
+  }, POLL_MS);
+}
+function stop(){
+  running = false;
+  setStatus();
+  document.getElementById('toggleBtn').textContent = 'Start';
+  document.getElementById('toggleBtn').classList.add('primary');
+  document.getElementById('toggleBtn').classList.remove('stop');
+  clearInterval(pollTimer);
+}
+
+document.getElementById('toggleBtn').addEventListener('click', ()=>{
+  running ? stop() : start();
+});
+
+document.getElementById('notifBtn').addEventListener('click', async ()=>{
+  if(typeof Notification === 'undefined'){
+    alert('Push-Benachrichtigungen werden von diesem Browser nicht unterstützt.');
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  notifGranted = perm === 'granted';
+  document.getElementById('notifBtn').textContent = notifGranted ? 'Push aktiv ✓' : 'Push aktivieren';
+});
+
+(async function init(){
+  await loadSignals();
+  const params = new URLSearchParams(location.search);
+  const paramSymbol = params.get('symbol');
+  if(paramSymbol && SYMBOLS.includes(paramSymbol)){
+    expanded[paramSymbol] = true;
+  }
+  render();
+  setStatus();
+  if(typeof Notification !== 'undefined' && Notification.permission === 'granted'){
+    document.getElementById('notifBtn').textContent = 'Push aktiv ✓';
+  }
+  if(paramSymbol){
+    start(); // direkt live schalten, wenn über einen Signal-Link geöffnet
+  }
+})();
+</script>
+</body>
+</html>
