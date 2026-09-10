@@ -33,18 +33,33 @@ def send_discord(text: str):
         log.error("Discord-Versand fehlgeschlagen: %s", e)
 
 
+KLINE_HOSTS = [
+    "https://data-api.binance.vision",  # oeffentliche Marktdaten, nicht geo-gesperrt
+    "https://api.binance.com",
+    "https://api1.binance.com",
+    "https://api2.binance.com",
+    "https://api3.binance.com",
+]
+
+
 def fetch_klines(symbol: str):
-    url = "https://api.binance.com/api/v3/klines"
     params = {"symbol": symbol, "interval": "5m", "limit": 150}
-    r = requests.get(url, params=params, timeout=10)
-    r.raise_for_status()
-    raw = r.json()
-    candles = [{
-        "openTime": k[0], "open": float(k[1]), "high": float(k[2]),
-        "low": float(k[3]), "close": float(k[4]), "closeTime": k[6],
-    } for k in raw]
-    candles.pop()
-    return candles
+    last_error = None
+    for host in KLINE_HOSTS:
+        try:
+            r = requests.get(f"{host}/api/v3/klines", params=params, timeout=10)
+            r.raise_for_status()
+            raw = r.json()
+            candles = [{
+                "openTime": k[0], "open": float(k[1]), "high": float(k[2]),
+                "low": float(k[3]), "close": float(k[4]), "closeTime": k[6],
+            } for k in raw]
+            candles.pop()
+            return candles
+        except Exception as e:
+            last_error = e
+            continue
+    raise last_error
 
 
 def find_swings(candles, n=SWING_N):
