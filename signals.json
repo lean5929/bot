@@ -14,7 +14,7 @@
       },
       "id": "BTCUSDT-SHORT-OB-1789203900000",
       "entryTime": 1789209300000,
-      "status": "OPEN"
+      "status": "WIN"
     },
     {
       "symbol": "BTCUSDT",
@@ -994,8 +994,8 @@
     }
   ],
   "last_closed": {
-    "BTCUSDT": 1789209599999,
-    "ETHUSDT": 1789209599999,
-    "SOLUSDT": 1789209599999
+    "BTCUSDT": 1789210499999,
+    "ETHUSDT": 1789210499999,
+    "SOLUSDT": 1789210499999
   }
 }
