@@ -3,6 +3,22 @@
     {
       "symbol": "SOLUSDT",
       "direction": "SHORT",
+      "type": "OB",
+      "entry": 96.92,
+      "sl": 97.18556000000001,
+      "tp": 96.7,
+      "rr": 0.8284380177737325,
+      "zone": {
+        "low": 96.86,
+        "high": 97.04
+      },
+      "id": "SOLUSDT-SHORT-OB-1789505400000",
+      "entryTime": 1789511400000,
+      "status": "OPEN"
+    },
+    {
+      "symbol": "SOLUSDT",
+      "direction": "SHORT",
       "type": "FVG",
       "entry": 97.67,
       "sl": 98.22712,
@@ -3026,8 +3042,8 @@
     }
   ],
   "last_closed": {
-    "BTCUSDT": 1789510799999,
-    "ETHUSDT": 1789510799999,
-    "SOLUSDT": 1789510799999
+    "BTCUSDT": 1789511699999,
+    "ETHUSDT": 1789511699999,
+    "SOLUSDT": 1789511699999
   }
 }
