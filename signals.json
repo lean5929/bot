@@ -14,7 +14,7 @@
       },
       "id": "SOLUSDT-LONG-OTE-1789824600000",
       "entryTime": 1789831800000,
-      "status": "OPEN"
+      "status": "WIN"
     },
     {
       "symbol": "SOLUSDT",
@@ -30,7 +30,7 @@
       },
       "id": "SOLUSDT-LONG-OB-1789824600000",
       "entryTime": 1789831800000,
-      "status": "OPEN"
+      "status": "WIN"
     },
     {
       "symbol": "ETHUSDT",
@@ -5730,8 +5730,8 @@
     }
   ],
   "last_closed": {
-    "BTCUSDT": 1789832099999,
-    "ETHUSDT": 1789832099999,
-    "SOLUSDT": 1789832099999
+    "BTCUSDT": 1789832999999,
+    "ETHUSDT": 1789832999999,
+    "SOLUSDT": 1789832999999
   }
 }
