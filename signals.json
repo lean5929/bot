@@ -14,7 +14,7 @@
       },
       "id": "ETHUSDT-SHORT-FVG-1789913400000",
       "entryTime": 1789915500000,
-      "status": "OPEN"
+      "status": "LOSS"
     },
     {
       "symbol": "SOLUSDT",
@@ -6594,8 +6594,8 @@
     }
   ],
   "last_closed": {
-    "BTCUSDT": 1789915799999,
-    "ETHUSDT": 1789915799999,
-    "SOLUSDT": 1789915799999
+    "BTCUSDT": 1789916699999,
+    "ETHUSDT": 1789916699999,
+    "SOLUSDT": 1789916699999
   }
 }
