@@ -14,7 +14,7 @@
       },
       "id": "BTCUSDT-LONG-FVG-1790234100000",
       "entryTime": 1790238000000,
-      "status": "OPEN"
+      "status": "LOSS"
     },
     {
       "symbol": "ETHUSDT",
@@ -9202,8 +9202,8 @@
     }
   ],
   "last_closed": {
-    "BTCUSDT": 1790238299999,
-    "ETHUSDT": 1790238299999,
-    "SOLUSDT": 1790238299999
+    "BTCUSDT": 1790239199999,
+    "ETHUSDT": 1790239199999,
+    "SOLUSDT": 1790239199999
   }
 }
