@@ -2,6 +2,38 @@
   "signals": [
     {
       "symbol": "SOLUSDT",
+      "direction": "SHORT",
+      "type": "FVG",
+      "entry": 116.57,
+      "sl": 116.7749,
+      "tp": 116.56,
+      "rr": 0.048804294777893886,
+      "zone": {
+        "low": 116.45,
+        "high": 116.57
+      },
+      "id": "SOLUSDT-SHORT-FVG-1790317500000",
+      "entryTime": 1790323200000,
+      "status": "OPEN"
+    },
+    {
+      "symbol": "ETHUSDT",
+      "direction": "SHORT",
+      "type": "FVG",
+      "entry": 2675.42,
+      "sl": 2684.8212000000003,
+      "tp": 2674.76,
+      "rr": 0.07020380376971422,
+      "zone": {
+        "low": 2672.21,
+        "high": 2676.44
+      },
+      "id": "ETHUSDT-SHORT-FVG-1790321400000",
+      "entryTime": 1790323200000,
+      "status": "OPEN"
+    },
+    {
+      "symbol": "SOLUSDT",
       "direction": "LONG",
       "type": "FVG",
       "entry": 116.27,
@@ -14,7 +46,7 @@
       },
       "id": "SOLUSDT-LONG-FVG-1790319900000",
       "entryTime": 1790322300000,
-      "status": "OPEN"
+      "status": "WIN"
     },
     {
       "symbol": "SOLUSDT",
@@ -30,7 +62,7 @@
       },
       "id": "SOLUSDT-LONG-OTE-1790319900000",
       "entryTime": 1790321400000,
-      "status": "OPEN"
+      "status": "WIN"
     },
     {
       "symbol": "SOLUSDT",
@@ -46,7 +78,7 @@
       },
       "id": "SOLUSDT-LONG-OB-1790319900000",
       "entryTime": 1790321400000,
-      "status": "OPEN"
+      "status": "WIN"
     },
     {
       "symbol": "ETHUSDT",
@@ -62,7 +94,7 @@
       },
       "id": "ETHUSDT-LONG-OTE-1790319900000",
       "entryTime": 1790321400000,
-      "status": "OPEN"
+      "status": "WIN"
     },
     {
       "symbol": "ETHUSDT",
@@ -78,7 +110,7 @@
       },
       "id": "ETHUSDT-LONG-OB-1790319900000",
       "entryTime": 1790321400000,
-      "status": "OPEN"
+      "status": "WIN"
     },
     {
       "symbol": "SOLUSDT",
@@ -9986,8 +10018,8 @@
     }
   ],
   "last_closed": {
-    "BTCUSDT": 1790322599999,
-    "ETHUSDT": 1790322599999,
-    "SOLUSDT": 1790322599999
+    "BTCUSDT": 1790323499999,
+    "ETHUSDT": 1790323499999,
+    "SOLUSDT": 1790323499999
   }
 }
