@@ -1,6 +1,38 @@
 {
   "signals": [
     {
+      "symbol": "SOLUSDT",
+      "direction": "LONG",
+      "type": "OTE",
+      "entry": 117.47,
+      "sl": 116.974275,
+      "tp": 117.52,
+      "rr": 0.10086237329163923,
+      "zone": {
+        "low": 117.3852,
+        "high": 117.57784000000001
+      },
+      "id": "SOLUSDT-LONG-OTE-1790300400000",
+      "entryTime": 1790304000000,
+      "status": "OPEN"
+    },
+    {
+      "symbol": "SOLUSDT",
+      "direction": "LONG",
+      "type": "OB",
+      "entry": 117.47,
+      "sl": 117.154005,
+      "tp": 117.52,
+      "rr": 0.15823035174606248,
+      "zone": {
+        "low": 117.33,
+        "high": 117.58
+      },
+      "id": "SOLUSDT-LONG-OB-1790300400000",
+      "entryTime": 1790304000000,
+      "status": "OPEN"
+    },
+    {
       "symbol": "ETHUSDT",
       "direction": "SHORT",
       "type": "FVG",
@@ -14,7 +46,7 @@
       },
       "id": "ETHUSDT-SHORT-FVG-1790298600000",
       "entryTime": 1790303100000,
-      "status": "OPEN"
+      "status": "WIN"
     },
     {
       "symbol": "BTCUSDT",
@@ -30,7 +62,7 @@
       },
       "id": "BTCUSDT-SHORT-OTE-1790298900000",
       "entryTime": 1790303100000,
-      "status": "OPEN"
+      "status": "WIN"
     },
     {
       "symbol": "BTCUSDT",
@@ -46,7 +78,7 @@
       },
       "id": "BTCUSDT-SHORT-FVG-1790298900000",
       "entryTime": 1790303100000,
-      "status": "OPEN"
+      "status": "WIN"
     },
     {
       "symbol": "ETHUSDT",
@@ -9650,8 +9682,8 @@
     }
   ],
   "last_closed": {
-    "BTCUSDT": 1790303399999,
-    "ETHUSDT": 1790303399999,
-    "SOLUSDT": 1790303399999
+    "BTCUSDT": 1790304299999,
+    "ETHUSDT": 1790304299999,
+    "SOLUSDT": 1790304299999
   }
 }
